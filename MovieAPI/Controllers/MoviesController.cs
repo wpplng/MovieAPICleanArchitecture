@@ -114,12 +114,23 @@ namespace MovieAPI.Controllers
 
         // POST: api/Movies
         [HttpPost]
-        public async Task<ActionResult<Movie>> PostMovie(Movie movie)
+        public async Task<ActionResult<MovieDto>> PostMovie(MovieCreateDto dto)
         {
+            var movie = new Movie
+            {
+                Title = dto.Title,
+                Year = dto.Year,
+                Genre = dto.Genre,
+                Duration = dto.Duration,
+            };
+
             context.Movies.Add(movie);
             await context.SaveChangesAsync();
 
-            return CreatedAtAction("GetMovie", new { id = movie.Id }, movie);
+            var movieDto = new MovieDto
+                (movie.Id, movie.Title, movie.Year, movie.Genre, movie.Duration);
+
+            return CreatedAtAction(nameof(GetMovie), new { id = movieDto.Id }, movieDto);
         }
 
         // DELETE: api/Movies/5
@@ -127,10 +138,8 @@ namespace MovieAPI.Controllers
         public async Task<IActionResult> DeleteMovie(int id)
         {
             var movie = await context.Movies.FindAsync(id);
-            if (movie == null)
-            {
-                return NotFound();
-            }
+
+            if (movie == null) return NotFound();
 
             context.Movies.Remove(movie);
             await context.SaveChangesAsync();
