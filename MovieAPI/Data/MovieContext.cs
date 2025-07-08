@@ -9,11 +9,17 @@ namespace MovieAPI.Data
 {
     public class MovieContext : DbContext
     {
+        public DbSet<Movie> Movies { get; set; } = default!;
         public MovieContext (DbContextOptions<MovieContext> options)
             : base(options)
         {
         }
 
-        public DbSet<MovieAPI.Models.Entities.Movie> Movies { get; set; } = default!;
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<MovieDetails>()
+                .Property(m => m.Budget)
+                .HasPrecision(18, 2); // 18 total siffror, 2 decimaler
+        }
     }
 }
