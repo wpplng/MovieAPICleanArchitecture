@@ -6,11 +6,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MovieAPI.Data;
+using MovieAPI.Models.Dtos;
 using MovieAPI.Models.Entities;
 
 namespace MovieAPI.Controllers
 {
-    [Route("api/reviews")]
+    [Route("api/movies/{movieId}/reviews")]
     [ApiController]
     public class ReviewsController : ControllerBase
     {
@@ -21,11 +22,20 @@ namespace MovieAPI.Controllers
             this.context = context;
         }
 
-        // GET: api/Reviews
+        // GET: api/movies/{movieId}/reviews
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Review>>> GetReview()
+        public async Task<ActionResult<IEnumerable<ReviewDto>>> GetReviewsForMovie(int movieId)
         {
-            return await context.Reviews.ToListAsync();
+            var movieExists = await context.Movies.AnyAsync(m => m.Id == movieId);
+            if (!movieExists)
+                return NotFound($"Movie with ID {movieId} was not found.");
+
+            var reviews = await context.Reviews
+                .Where(r => r.MovieId == movieId)
+                .Select(r => new ReviewDto(r.Id, r.ReviewerName, r.Comment, r.Rating))
+                .ToListAsync();
+
+            return Ok(reviews);
         }
 
         //[HttpPost]
