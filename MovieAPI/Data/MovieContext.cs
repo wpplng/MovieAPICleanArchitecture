@@ -19,7 +19,7 @@ namespace MovieAPI.Data
         {
             modelBuilder.Entity<MovieDetails>()
                 .Property(m => m.Budget)
-                .HasPrecision(18, 2); // 18 total siffror, 2 decimaler
+                .HasPrecision(18, 2);
         }
     }
 }
