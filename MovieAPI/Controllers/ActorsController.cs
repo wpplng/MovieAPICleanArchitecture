@@ -10,7 +10,7 @@ using MovieAPI.Models.Entities;
 
 namespace MovieAPI.Controllers
 {
-    [Route("api/actors")]
+    [Route("api/movies/{movieId}/actors/{actorId}")]
     [ApiController]
     public class ActorsController : ControllerBase
     {
@@ -21,70 +21,27 @@ namespace MovieAPI.Controllers
             this.context = context;
         }
 
-        //// GET: api/Actors
-        //[HttpGet]
-        //public async Task<ActionResult<IEnumerable<Actor>>> GetActor()
-        //{
-        //    return await context.Actors.ToListAsync();
-        //}
-
-        //// GET: api/Actors/5
-        //[HttpGet("{id}")]
-        //public async Task<ActionResult<Actor>> GetActor(int id)
-        //{
-        //    var actor = await context.Actors.FindAsync(id);
-
-        //    if (actor == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    return actor;
-        //}
-
-        //// PUT: api/Actors/5
-        //[HttpPut("{id}")]
-        //public async Task<IActionResult> PutActor(int id, Actor actor)
-        //{
-        //    if (id != actor.Id)
-        //    {
-        //        return BadRequest();
-        //    }
-
-        //    context.Entry(actor).State = EntityState.Modified;
-
-        //    try
-        //    {
-        //        await context.SaveChangesAsync();
-        //    }
-        //    catch (DbUpdateConcurrencyException)
-        //    {
-        //        if (!ActorExists(id))
-        //        {
-        //            return NotFound();
-        //        }
-        //        else
-        //        {
-        //            throw;
-        //        }
-        //    }
-
-        //    return NoContent();
-        //}
-
-        // POST: api/Actors
+        // POST: api/movies/{movieId}/actors/{actorId}
         [HttpPost]
-        public async Task<ActionResult<Actor>> PostActor(Actor actor)
+        public async Task<ActionResult> AddActorToMovie(int movieId, int actorId)
         {
-            context.Actors.Add(actor);
+            var movie = await context.Movies
+                .Include(m => m.Actors)
+                .FirstOrDefaultAsync(m => m.Id == movieId);
+            if (movie == null) return NotFound($"Movie with ID {movieId} was not found.");
+
+            var actor = await context.Actors.FindAsync(actorId);
+            if (actor == null) return NotFound($"Actor with ID {actorId} was not found.");
+
+            if (movie.Actors.Any(a => a.Id == actorId))
+            {
+                return BadRequest($"Actor with ID {actorId} is already in this movie.");
+            }
+
+            movie.Actors.Add(actor);
             await context.SaveChangesAsync();
 
-            return CreatedAtAction("GetActor", new { id = actor.Id }, actor);
+            return NoContent();
         }
-
-        //private bool ActorExists(int id)
-        //{
-        //    return context.Actors.Any(e => e.Id == id);
-        //}
     }
 }

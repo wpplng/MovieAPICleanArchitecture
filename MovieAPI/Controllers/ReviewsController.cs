@@ -37,29 +37,5 @@ namespace MovieAPI.Controllers
 
             return Ok(reviews);
         }
-
-        //[HttpPost]
-        //public async Task<ActionResult<Review>> PostReview(Review review)
-        //{
-        //    context.Reviews.Add(review);
-        //    await context.SaveChangesAsync();
-
-        //    return CreatedAtAction("GetReview", new { id = review.Id }, review);
-        //}
-
-        //[HttpDelete("{id}")]
-        //public async Task<IActionResult> DeleteReview(int id)
-        //{
-        //    var review = await context.Reviews.FindAsync(id);
-        //    if (review == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    context.Reviews.Remove(review);
-        //    await context.SaveChangesAsync();
-
-        //    return NoContent();
-        //}
     }
 }
