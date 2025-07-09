@@ -21,6 +21,7 @@ namespace MovieAPI.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new MovieConfiguration());
+            modelBuilder.ApplyConfiguration(new ReviewConfiguration());
             modelBuilder.Entity<MovieDetails>()
                 .Property(m => m.Budget)
                 .HasPrecision(18, 2);
