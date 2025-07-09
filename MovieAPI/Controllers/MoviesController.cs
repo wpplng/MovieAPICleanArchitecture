@@ -55,7 +55,7 @@ namespace MovieAPI.Controllers
                             (m.Id, m.Title, m.Year, m.Genre, m.Duration))
                 .FirstOrDefaultAsync();
 
-            if (movie == null) return NotFound();
+            if (movie == null) return NotFound($"Movie with ID {id} was not found.");
 
             return Ok(movie);
         }
@@ -85,7 +85,7 @@ namespace MovieAPI.Controllers
                 })
                 .FirstOrDefaultAsync();
 
-            if (movie == null) return NotFound();
+            if (movie == null) return NotFound($"Movie with ID {id} was not found.");
 
             return Ok(movie);
         }
@@ -96,7 +96,7 @@ namespace MovieAPI.Controllers
         {
             var movie = await context.Movies.FirstOrDefaultAsync(m => m.Id == id);
 
-            if (movie == null) return NotFound();
+            if (movie == null) return NotFound($"Movie with ID {id} was not found.");
 
             movie.Title = dto.Title;
             movie.Year = dto.Year;
@@ -111,7 +111,7 @@ namespace MovieAPI.Controllers
             {
                 if (!MovieExists(id))
                 {
-                    return NotFound();
+                    return NotFound($"Movie with ID {id} was not found.");
                 }
                 else
                 {
@@ -149,7 +149,7 @@ namespace MovieAPI.Controllers
         {
             var movie = await context.Movies.FindAsync(id);
 
-            if (movie == null) return NotFound();
+            if (movie == null) return NotFound($"Movie with ID {id} was not found.");
 
             context.Movies.Remove(movie);
             await context.SaveChangesAsync();
