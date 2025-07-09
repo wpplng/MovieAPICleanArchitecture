@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using MovieAPI.Configurations;
+using MovieAPI.Models.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using MovieAPI.Models.Entities;
 
 namespace MovieAPI.Data
 {
@@ -19,6 +20,7 @@ namespace MovieAPI.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.ApplyConfiguration(new MovieConfiguration());
             modelBuilder.Entity<MovieDetails>()
                 .Property(m => m.Budget)
                 .HasPrecision(18, 2);
