@@ -25,19 +25,13 @@ namespace MovieAPI.Services
             if (!env.IsDevelopment()) return;
 
             var context = scope.ServiceProvider.GetRequiredService<MovieContext>();
-            // Uncomment the following line if you want to skip seeding if the database already has movies
-            // if (await context.Movies.AnyAsync(cancellationToken)) return;
+            if (await context.Movies.AnyAsync(cancellationToken)) return;
 
             try
             {
-                // Remove theese two lines if you don't want to recreate the database every time
-                await context.Database.EnsureDeletedAsync();
-                await context.Database.EnsureCreatedAsync();
                 IEnumerable<Movie> movies = GenerateMovies(10);
-                await context.Movies.AddRangeAsync(movies);
-                await context.SaveChangesAsync();
-                //await context.Movies.AddRangeAsync(movies, cancellationToken);
-                //await context.SaveChangesAsync(cancellationToken);
+                await context.Movies.AddRangeAsync(movies, cancellationToken);
+                await context.SaveChangesAsync(cancellationToken);
                 logger.LogInformation("Database seeded");
             }
             catch (Exception ex)
