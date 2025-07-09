@@ -53,7 +53,7 @@ namespace MovieAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Actor");
+                    b.ToTable("Actors");
                 });
 
             modelBuilder.Entity("MovieAPI.Models.Entities.Movie", b =>
@@ -92,6 +92,7 @@ namespace MovieAPI.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<decimal>("Budget")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Language")
@@ -139,7 +140,7 @@ namespace MovieAPI.Migrations
 
                     b.HasIndex("MovieId");
 
-                    b.ToTable("Review");
+                    b.ToTable("Reviews");
                 });
 
             modelBuilder.Entity("ActorMovie", b =>
@@ -181,8 +182,7 @@ namespace MovieAPI.Migrations
 
             modelBuilder.Entity("MovieAPI.Models.Entities.Movie", b =>
                 {
-                    b.Navigation("MovieDetails")
-                        .IsRequired();
+                    b.Navigation("MovieDetails");
 
                     b.Navigation("Reviews");
                 });

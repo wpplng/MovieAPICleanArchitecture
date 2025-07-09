@@ -73,9 +73,9 @@ namespace MovieAPI.Controllers
                     Year = m.Year,
                     Genre = m.Genre,
                     Duration = m.Duration,
-                    Synopsis = m.MovieDetails.Synopsis,
-                    Language = m.MovieDetails.Language,
-                    Budget = m.MovieDetails.Budget,
+                    Synopsis = m.MovieDetails != null ? m.MovieDetails.Synopsis : null!,
+                    Language = m.MovieDetails != null ? m.MovieDetails.Language : null!,
+                    Budget = m.MovieDetails != null ? m.MovieDetails.Budget : null,
                     Reviews = m.Reviews.Select(r => new ReviewDto
                                                     (r.Id, r.ReviewerName, r.Comment, r.Rating))
                                                     .ToList(),
@@ -141,6 +141,37 @@ namespace MovieAPI.Controllers
                 (movie.Id, movie.Title, movie.Year, movie.Genre, movie.Duration);
 
             return CreatedAtAction(nameof(GetMovie), new { id = movieDto.Id }, movieDto);
+        }
+
+        // POST: api/Movies/5/details
+        [HttpPost("{id}/details")]
+        public async Task<IActionResult> AddOrUpdateMovieDetails(int id, MovieDetailsCreateOrUpdateDto dto)
+        {
+            var movie = await context.Movies
+                .Include(m => m.MovieDetails)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (movie == null)
+                return NotFound($"Movie with ID {id} was not found.");
+
+            if (movie.MovieDetails == null)
+            {
+                movie.MovieDetails = new MovieDetails
+                {
+                    Synopsis = dto.Synopsis,
+                    Language = dto.Language,
+                    Budget = dto.Budget
+                };
+            }
+            else
+            {
+                movie.MovieDetails.Synopsis = dto.Synopsis;
+                movie.MovieDetails.Language = dto.Language;
+                movie.MovieDetails.Budget = dto.Budget;
+            }
+
+            await context.SaveChangesAsync();
+            return NoContent();
         }
 
         // DELETE: api/Movies/5
