@@ -24,9 +24,21 @@ namespace MovieAPI.Controllers
 
         // GET: api/Movies
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<MovieDto>>> GetMovie()
+        public async Task<ActionResult<IEnumerable<MovieDto>>> GetMovies([FromQuery] string? genre, [FromQuery] int? year)
         {
-            var movies = await context.Movies
+            var query = context.Movies.AsQueryable();
+
+            if (!string.IsNullOrEmpty(genre))
+            {
+                query = query.Where(m => m.Genre.ToLower() == genre.ToLower());
+            }
+
+            if (year.HasValue)
+            {
+                query = query.Where(m => m.Year == year);
+            }
+
+            var movies = await query
                 .Select(m => new MovieDto(m.Id, m.Title, m.Year, m.Genre, m.Duration))
                 .ToListAsync();
 
@@ -46,7 +58,6 @@ namespace MovieAPI.Controllers
             if (movie == null) return NotFound();
 
             return Ok(movie);
-
         }
 
         // GET: api/Movies/5/details
@@ -77,7 +88,6 @@ namespace MovieAPI.Controllers
             if (movie == null) return NotFound();
 
             return Ok(movie);
-
         }
 
         // PUT: api/Movies/5

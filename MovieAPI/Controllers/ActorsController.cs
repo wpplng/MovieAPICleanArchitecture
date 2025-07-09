@@ -35,7 +35,7 @@ namespace MovieAPI.Controllers
 
             if (movie.Actors.Any(a => a.Id == actorId))
             {
-                return BadRequest($"Actor with ID {actorId} is already in this movie.");
+                return Conflict($"Actor with ID {actorId} is already in this movie.");
             }
 
             movie.Actors.Add(actor);
