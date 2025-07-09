@@ -13,6 +13,7 @@ namespace MovieAPI.Controllers
 {
     [Route("api/movies/{movieId}/reviews")]
     [ApiController]
+    [Produces("application/json")]
     public class ReviewsController : ControllerBase
     {
         private readonly MovieContext context;
