@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MovieAPI.Models.Entities;
+using MovieCore.Models.Entities;
 
-namespace MovieAPI.Configurations
+namespace MovieData.Configurations
 {
     public class ReviewConfiguration : IEntityTypeConfiguration<Review>
     {

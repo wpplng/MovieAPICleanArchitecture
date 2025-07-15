@@ -1,8 +1,8 @@
 ﻿
 using Bogus;
 using Microsoft.EntityFrameworkCore;
-using MovieAPI.Data;
-using MovieAPI.Models.Entities;
+using MovieCore.Models.Entities;
+using MovieData.Data;
 
 namespace MovieAPI.Services
 {

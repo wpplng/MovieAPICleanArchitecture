@@ -1,4 +1,4 @@
-﻿namespace MovieAPI.Models.Entities
+﻿namespace MovieCore.Models.Entities
 {
     public class MovieDetails
     {
