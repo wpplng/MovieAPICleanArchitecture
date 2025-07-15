@@ -8,7 +8,7 @@ namespace MovieAPI.Configurations
     {
         public void Configure(EntityTypeBuilder<Movie> builder)
         {
-            builder.ToTable("Movies");
+            builder.ToTable("Movie");
             builder.HasKey(m => m.Id);
             builder.Property(m => m.Title).IsRequired().HasMaxLength(100);
             builder.Property(m => m.Genre).IsRequired().HasMaxLength(50);

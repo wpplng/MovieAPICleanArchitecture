@@ -1,10 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MovieAPI.Configurations;
 using MovieAPI.Models.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace MovieAPI.Data
 {
@@ -13,7 +9,7 @@ namespace MovieAPI.Data
         public DbSet<Movie> Movies { get; set; } = default!;
         public DbSet<Actor> Actors { get; set; } = default!;
         public DbSet<Review> Reviews { get; set; } = default!;
-        public MovieContext (DbContextOptions<MovieContext> options)
+        public MovieContext(DbContextOptions<MovieContext> options)
             : base(options)
         {
         }
@@ -23,8 +19,11 @@ namespace MovieAPI.Data
             modelBuilder.ApplyConfiguration(new MovieConfiguration());
             modelBuilder.ApplyConfiguration(new ReviewConfiguration());
             modelBuilder.Entity<MovieDetails>()
+                .ToTable("MovieDetails")
                 .Property(m => m.Budget)
                 .HasPrecision(18, 2);
+            modelBuilder.Entity<Actor>()
+                .ToTable("Actor");
         }
     }
 }

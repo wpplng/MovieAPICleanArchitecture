@@ -8,7 +8,7 @@ namespace MovieAPI.Configurations
     {
         public void Configure(EntityTypeBuilder<Review> builder)
         {
-            builder.ToTable("Reviews");
+            builder.ToTable("Review");
             builder.HasKey(r => r.Id);
             builder.Property(r => r.ReviewerName)
                 .IsRequired()
