@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MovieAPI.Services;
+using MovieCore.DomainContracts;
 using MovieData.Data;
+using MovieData.Repositories;
 
 namespace MovieAPI
 {
@@ -17,6 +19,8 @@ namespace MovieAPI
             builder.Services.AddControllers();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
+
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             builder.Services.AddHostedService<DataSeedService>();
 
