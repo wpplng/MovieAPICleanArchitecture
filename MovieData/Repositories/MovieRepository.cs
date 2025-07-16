@@ -1,13 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MovieCore.DomainContracts;
-using MovieCore.Models.Dtos;
 using MovieCore.Models.Entities;
 using MovieData.Data;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MovieData.Repositories
 {
@@ -25,6 +19,20 @@ namespace MovieData.Repositories
             return await context.Movies.ToListAsync();
         }
 
+        public async Task<IEnumerable<Movie>> GetFilteredAsync(string? genre, int? year)
+        {
+            var query = context.Movies.AsQueryable();
+
+            if (!string.IsNullOrEmpty(genre))
+                query = query.Where(m => m.Genre.ToLower() == genre.ToLower());
+
+            if (year.HasValue)
+                query = query.Where(m => m.Year == year);
+
+            return await query.ToListAsync();
+        }
+
+
         public async Task<Movie?> GetAsync(int id)
         {
             return await context.Movies.FirstOrDefaultAsync(m => m.Id == id);
@@ -32,6 +40,15 @@ namespace MovieData.Repositories
         public async Task<bool> AnyAsync(int id)
         {
             return await context.Movies.AnyAsync(m => m.Id == id);
+        }
+
+        public async Task<Movie?> GetWithDetailsAsync(int id)
+        {
+            return await context.Movies
+                .Include(m => m.MovieDetails)
+                .Include(m => m.Reviews)
+                .Include(m => m.Actors)
+                .FirstOrDefaultAsync(m => m.Id == id);
         }
 
         public void Add(Movie movie)

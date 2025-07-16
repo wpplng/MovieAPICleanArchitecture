@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MovieCore.DomainContracts;
 using MovieCore.Models.Dtos;
 using MovieCore.Models.Entities;
 using MovieData.Data;
@@ -11,86 +12,70 @@ namespace MovieAPI.Controllers
     [Produces("application/json")]
     public class MoviesController : ControllerBase
     {
-        private readonly MovieContext context;
+        private readonly IUnitOfWork uow;
 
-        public MoviesController(MovieContext context)
+        public MoviesController(IUnitOfWork uow)
         {
-            this.context = context;
+            this.uow = uow;
         }
 
         // GET: api/Movies
         [HttpGet]
         public async Task<ActionResult<IEnumerable<MovieDto>>> GetMovies([FromQuery] string? genre, [FromQuery] int? year)
         {
-            var query = context.Movies.AsQueryable();
+            var movies = await uow.MovieRepository.GetFilteredAsync(genre, year);
+            var dtos = movies.Select(m => new MovieDto
+                (m.Id, m.Title, m.Year, m.Genre, m.Duration));
 
-            if (!string.IsNullOrEmpty(genre))
-            {
-                query = query.Where(m => m.Genre.ToLower() == genre.ToLower());
-            }
-
-            if (year.HasValue)
-            {
-                query = query.Where(m => m.Year == year);
-            }
-
-            var movies = await query
-                .Select(m => new MovieDto(m.Id, m.Title, m.Year, m.Genre, m.Duration))
-                .ToListAsync();
-
-            return Ok(movies);
+            return Ok(dtos);
         }
 
         // GET: api/Movies/5
         [HttpGet("{id}")]
         public async Task<ActionResult<MovieDto>> GetMovie(int id)
         {
-            var movie = await context.Movies
-                .Where(m => m.Id == id)
-                .Select(m => new MovieDto
-                            (m.Id, m.Title, m.Year, m.Genre, m.Duration))
-                .FirstOrDefaultAsync();
+            var movie = await uow.MovieRepository.GetAsync(id);
 
             if (movie == null) return NotFound($"Movie with ID {id} was not found.");
 
-            return Ok(movie);
+            var dto = new MovieDto
+                (movie.Id, movie.Title, movie.Year, movie.Genre, movie.Duration);
+
+            return Ok(dto);
         }
 
         // GET: api/Movies/5/details
         [HttpGet("{id}/details")]
         public async Task<ActionResult<MovieDetailDto>> GetMovieDetails(int id)
         {
-            var movie = await context.Movies
-                .Where(m => m.Id == id)
-                .Select(m => new MovieDetailDto
-                {
-                    Id = m.Id,
-                    Title = m.Title,
-                    Year = m.Year,
-                    Genre = m.Genre,
-                    Duration = m.Duration,
-                    Synopsis = m.MovieDetails != null ? m.MovieDetails.Synopsis : null!,
-                    Language = m.MovieDetails != null ? m.MovieDetails.Language : null!,
-                    Budget = m.MovieDetails != null ? m.MovieDetails.Budget : null,
-                    Reviews = m.Reviews.Select(r => new ReviewDto
-                                                    (r.Id, r.ReviewerName, r.Comment, r.Rating))
-                                                    .ToList(),
-                    Actors = m.Actors.Select(a => new ActorDto
-                                                  (a.Id, a.Name, a.BirthYear))
-                                                  .ToList()
-                })
-                .FirstOrDefaultAsync();
-
+            var movie = await uow.MovieRepository.GetWithDetailsAsync(id);
             if (movie == null) return NotFound($"Movie with ID {id} was not found.");
 
-            return Ok(movie);
+            var dto = new MovieDetailDto
+            {
+                Id = movie.Id,
+                Title = movie.Title,
+                Year = movie.Year,
+                Genre = movie.Genre,
+                Duration = movie.Duration,
+                Synopsis = movie.MovieDetails?.Synopsis,
+                Language = movie.MovieDetails?.Language,
+                Budget = movie.MovieDetails?.Budget,
+                Reviews = movie.Reviews.Select(r => new ReviewDto
+                    (r.Id, r.ReviewerName, r.Comment, r.Rating)).ToList(),
+                Actors = movie.Actors.Select(a => new ActorDto
+                    (a.Id, a.Name, a.BirthYear)).ToList()
+            };
+
+            return Ok(dto);
         }
 
         // PUT: api/Movies/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutMovie(int id, MovieUpdateDto dto)
         {
-            var movie = await context.Movies.FirstOrDefaultAsync(m => m.Id == id);
+            //var movie = await context.Movies.FirstOrDefaultAsync(m => m.Id == id);
+            var movie = await uow.MovieRepository.GetAsync(id);
 
             if (movie == null) return NotFound($"Movie with ID {id} was not found.");
 
@@ -99,21 +84,8 @@ namespace MovieAPI.Controllers
             movie.Genre = dto.Genre;
             movie.Duration = dto.Duration;
 
-            try
-            {
-                await context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!MovieExists(id))
-                {
-                    return NotFound($"Movie with ID {id} was not found.");
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            uow.MovieRepository.Update(movie);
+            await uow.CompleteAsync();
 
             return NoContent();
         }
@@ -130,8 +102,8 @@ namespace MovieAPI.Controllers
                 Duration = dto.Duration,
             };
 
-            context.Movies.Add(movie);
-            await context.SaveChangesAsync();
+            uow.MovieRepository.Add(movie);
+            await uow.CompleteAsync();
 
             var movieDto = new MovieDto
                 (movie.Id, movie.Title, movie.Year, movie.Genre, movie.Duration);
@@ -143,20 +115,18 @@ namespace MovieAPI.Controllers
         [HttpPost("{id}/details")]
         public async Task<IActionResult> AddOrUpdateMovieDetails(int id, MovieDetailsCreateOrUpdateDto dto)
         {
-            var movie = await context.Movies
-                .Include(m => m.MovieDetails)
-                .FirstOrDefaultAsync(m => m.Id == id);
-
+            var movie = await uow.MovieRepository.GetWithDetailsAsync(id);
             if (movie == null)
                 return NotFound($"Movie with ID {id} was not found.");
 
             if (movie.MovieDetails == null)
-            {
+                {
                 movie.MovieDetails = new MovieDetails
                 {
                     Synopsis = dto.Synopsis,
                     Language = dto.Language,
-                    Budget = dto.Budget
+                    Budget = dto.Budget,
+                    MovieId = movie.Id
                 };
             }
             else
@@ -166,7 +136,9 @@ namespace MovieAPI.Controllers
                 movie.MovieDetails.Budget = dto.Budget;
             }
 
-            await context.SaveChangesAsync();
+            uow.MovieRepository.Update(movie);
+            await uow.CompleteAsync();
+
             return NoContent();
         }
 
@@ -174,19 +146,14 @@ namespace MovieAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMovie(int id)
         {
-            var movie = await context.Movies.FindAsync(id);
+            var movie = await uow.MovieRepository.GetAsync(id);
 
             if (movie == null) return NotFound($"Movie with ID {id} was not found.");
 
-            context.Movies.Remove(movie);
-            await context.SaveChangesAsync();
+            uow.MovieRepository.Remove(movie);
+            await uow.CompleteAsync();
 
             return NoContent();
-        }
-
-        private bool MovieExists(int id)
-        {
-            return context.Movies.Any(e => e.Id == id);
         }
     }
 }
