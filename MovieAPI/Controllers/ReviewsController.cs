@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MovieCore.DomainContracts;
 using MovieCore.Models.Dtos;
 using MovieData.Data;
 
@@ -10,27 +11,26 @@ namespace MovieAPI.Controllers
     [Produces("application/json")]
     public class ReviewsController : ControllerBase
     {
-        private readonly MovieContext context;
+        private readonly IUnitOfWork uow;
 
-        public ReviewsController(MovieContext context)
+        public ReviewsController(IUnitOfWork uow)
         {
-            this.context = context;
+            this.uow = uow;
         }
 
         // GET: api/movies/{movieId}/reviews
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ReviewDto>>> GetReviewsForMovie(int movieId)
         {
-            var movieExists = await context.Movies.AnyAsync(m => m.Id == movieId);
+            var movieExists = await uow.ReviewRepository.MovieExistsAsync(movieId);
             if (!movieExists)
                 return NotFound($"Movie with ID {movieId} was not found.");
 
-            var reviews = await context.Reviews
-                .Where(r => r.MovieId == movieId)
-                .Select(r => new ReviewDto(r.Id, r.ReviewerName, r.Comment, r.Rating))
-                .ToListAsync();
+            var reviews = await uow.ReviewRepository.GetByMovieIdAsync(movieId);
 
-            return Ok(reviews);
+            var result = reviews.Select(r => new ReviewDto(r.Id, r.ReviewerName, r.Comment, r.Rating));
+
+            return Ok(result);
         }
     }
 }
