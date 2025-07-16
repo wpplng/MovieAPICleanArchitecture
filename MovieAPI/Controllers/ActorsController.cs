@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MovieCore.DomainContracts;
 using MovieData.Data;
 
 namespace MovieAPI.Controllers
@@ -9,23 +10,21 @@ namespace MovieAPI.Controllers
     [Produces("application/json")]
     public class ActorsController : ControllerBase
     {
-        private readonly MovieContext context;
+        private readonly IUnitOfWork uow;
 
-        public ActorsController(MovieContext context)
+        public ActorsController(IUnitOfWork uow)
         {
-            this.context = context;
+            this.uow = uow;
         }
 
         // POST: api/movies/{movieId}/actors/{actorId}
         [HttpPost]
         public async Task<ActionResult> AddActorToMovie(int movieId, int actorId)
         {
-            var movie = await context.Movies
-                .Include(m => m.Actors)
-                .FirstOrDefaultAsync(m => m.Id == movieId);
+            var movie = await uow.ActorRepository.GetMovieWithActorsAsync(movieId);
             if (movie == null) return NotFound($"Movie with ID {movieId} was not found.");
 
-            var actor = await context.Actors.FindAsync(actorId);
+            var actor = await uow.ActorRepository.GetAsync(actorId);
             if (actor == null) return NotFound($"Actor with ID {actorId} was not found.");
 
             if (movie.Actors.Any(a => a.Id == actorId))
@@ -33,8 +32,8 @@ namespace MovieAPI.Controllers
                 return Conflict($"Actor with ID {actorId} is already in this movie.");
             }
 
-            movie.Actors.Add(actor);
-            await context.SaveChangesAsync();
+            uow.ActorRepository.AddActorToMovie(movie, actor);
+            await uow.CompleteAsync();
 
             return NoContent();
         }
