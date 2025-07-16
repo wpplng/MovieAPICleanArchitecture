@@ -3,6 +3,8 @@ using MovieAPI.Services;
 using MovieCore.DomainContracts;
 using MovieData.Data;
 using MovieData.Repositories;
+using MovieServiceContracts;
+using MovieServices;
 
 namespace MovieAPI
 {
@@ -21,8 +23,11 @@ namespace MovieAPI
             builder.Services.AddOpenApi();
 
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddScoped<IServiceManager, ServiceManager>();
+            builder.Services.AddScoped<IMovieService, MovieService>();
 
             builder.Services.AddHostedService<DataSeedService>();
+
 
             var app = builder.Build();
 
