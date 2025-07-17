@@ -32,6 +32,25 @@ namespace MovieData.Repositories
             return await query.ToListAsync();
         }
 
+        public async Task<(IEnumerable<Movie> Movies, int TotalItems)> GetPagedAsync(string? genre, int? year, int pageNumber, int pageSize)
+        {
+            var query = context.Movies.AsQueryable();
+
+            if (!string.IsNullOrEmpty(genre))
+                query = query.Where(m => m.Genre.ToLower() == genre.ToLower());
+
+            if (year.HasValue)
+                query = query.Where(m => m.Year == year);
+
+            var totalItems = await query.CountAsync();
+
+            var movies = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (movies, totalItems);
+        }
 
         public async Task<Movie?> GetAsync(int id)
         {

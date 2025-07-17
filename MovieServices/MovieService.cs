@@ -20,6 +20,22 @@ namespace MovieServices
             return movies.Select(m => new MovieDto(m.Id, m.Title, m.Year, m.Genre, m.Duration));
         }
 
+        public async Task<PagedResult<MovieDto>> GetAllPagedAsync(string? genre, int? year, int pageNumber, int pageSize)
+        {
+            var (movies, totalItems) = await uow.MovieRepository.GetPagedAsync(genre, year, pageNumber, pageSize);
+
+            var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+
+            return new PagedResult<MovieDto>
+            {
+                Items = movies.Select(m => new MovieDto(m.Id, m.Title, m.Year, m.Genre, m.Duration)),
+                TotalItems = totalItems,
+                TotalPages = totalPages,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
+
         public async Task<MovieDto?> GetAsync(int id)
         {
             var movie = await uow.MovieRepository.GetAsync(id);
