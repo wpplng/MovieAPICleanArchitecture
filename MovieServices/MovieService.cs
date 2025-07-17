@@ -23,7 +23,7 @@ namespace MovieServices
         public async Task<MovieDto?> GetAsync(int id)
         {
             var movie = await uow.MovieRepository.GetAsync(id);
-            if (movie == null) return null;
+            if (movie == null) throw new KeyNotFoundException($"Movie with ID {id} was not found.");
 
             return new MovieDto(movie.Id, movie.Title, movie.Year, movie.Genre, movie.Duration);
         }
@@ -31,7 +31,7 @@ namespace MovieServices
         public async Task<MovieDetailDto?> GetDetailsAsync(int id)
         {
             var movie = await uow.MovieRepository.GetWithDetailsAsync(id);
-            if (movie == null) return null;
+            if (movie == null) throw new KeyNotFoundException($"Movie with ID {id} was not found.");
 
             return new MovieDetailDto
             {
@@ -67,7 +67,7 @@ namespace MovieServices
         public async Task<bool> UpdateAsync(int id, MovieUpdateDto dto)
         {
             var movie = await uow.MovieRepository.GetAsync(id);
-            if (movie == null) return false;
+            if (movie == null) throw new KeyNotFoundException($"Movie with ID {id} was not found.");
 
             movie.Title = dto.Title;
             movie.Year = dto.Year;
@@ -83,7 +83,7 @@ namespace MovieServices
         public async Task<bool> DeleteAsync(int id)
         {
             var movie = await uow.MovieRepository.GetAsync(id);
-            if (movie == null) return false;
+            if (movie == null) throw new KeyNotFoundException($"Movie with ID {id} was not found.");
 
             uow.MovieRepository.Remove(movie);
             await uow.CompleteAsync();
@@ -94,7 +94,7 @@ namespace MovieServices
         public async Task<bool> AddOrUpdateDetailsAsync(int id, MovieDetailsCreateOrUpdateDto dto)
         {
             var movie = await uow.MovieRepository.GetWithDetailsAsync(id);
-            if (movie == null) return false;
+            if (movie == null) throw new KeyNotFoundException($"Movie with ID {id} was not found.");
 
             if (movie.MovieDetails == null)
             {
