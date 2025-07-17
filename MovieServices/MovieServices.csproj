@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\MovieCore\MovieCore.csproj" />
     <ProjectReference Include="..\MovieServiceContracts\MovieServiceContracts.csproj" />
   </ItemGroup>
 
