@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MovieAPI.Middleware;
 using MovieAPI.Services;
 using MovieCore.DomainContracts;
 using MovieData.Data;
@@ -45,6 +46,8 @@ namespace MovieAPI
             }
 
             app.UseHttpsRedirection();
+
+            app.UseMiddleware<ExceptionMiddleware>();
 
             app.UseAuthorization();
 
