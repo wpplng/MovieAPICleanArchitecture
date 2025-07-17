@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 
 namespace MovieServiceContracts
 {
-    public interface IServiceManager
+    public interface IActorService
     {
-        IMovieService Movies { get; }
-        IActorService Actors { get; }
-        //IReviewService Reviews { get; }
+        Task<bool> AddActorToMovieAsync(int movieId, int actorId);
     }
 }
