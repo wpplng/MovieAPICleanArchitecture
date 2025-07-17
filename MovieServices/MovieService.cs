@@ -14,15 +14,9 @@ namespace MovieServices
             this.uow = uow;
         }
 
-        public async Task<IEnumerable<MovieDto>> GetAllAsync(string? genre, int? year)
+        public async Task<PagedResult<MovieDto>> GetAllAsync(string? genre, int? year, int pageNumber, int pageSize)
         {
-            var movies = await uow.MovieRepository.GetFilteredAsync(genre, year);
-            return movies.Select(m => new MovieDto(m.Id, m.Title, m.Year, m.Genre, m.Duration));
-        }
-
-        public async Task<PagedResult<MovieDto>> GetAllPagedAsync(string? genre, int? year, int pageNumber, int pageSize)
-        {
-            var (movies, totalItems) = await uow.MovieRepository.GetPagedAsync(genre, year, pageNumber, pageSize);
+            var (movies, totalItems) = await uow.MovieRepository.GetFilteredAsync(genre, year, pageNumber, pageSize);
 
             var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
 

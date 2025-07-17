@@ -18,13 +18,6 @@ namespace MoviePresentation.Controllers
 
         // GET: api/Movies
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<MovieDto>>> GetMovies([FromQuery] string? genre, [FromQuery] int? year)
-        {
-            var movies = await serviceManager.Movies.GetAllAsync(genre, year);
-            return Ok(movies);
-        }
-
-        [HttpGet("paged")]
         public async Task<ActionResult<IEnumerable<MovieDto>>> GetMoviesPaged(
             [FromQuery] string? genre,
             [FromQuery] int? year,
@@ -32,7 +25,7 @@ namespace MoviePresentation.Controllers
             [FromQuery] int pageSize = 10
             )
         {
-            var result = await serviceManager.Movies.GetAllPagedAsync(genre, year, pageNumber, pageSize);
+            var result = await serviceManager.Movies.GetAllAsync(genre, year, pageNumber, pageSize);
 
             Response.Headers.Add("X-Total-Count", result.TotalItems.ToString());
             Response.Headers.Add("X-Total-Pages", result.TotalPages.ToString());
