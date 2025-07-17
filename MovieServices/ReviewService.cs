@@ -16,7 +16,7 @@ namespace MovieServices
         public async Task<IEnumerable<ReviewDto>> GetReviewsForMovieAsync(int movieId)
         {
             var movieExists = await uow.ReviewRepository.MovieExistsAsync(movieId);
-            if (!movieExists) return Enumerable.Empty<ReviewDto>();
+            if (!movieExists) throw new KeyNotFoundException($"Movie with ID {movieId} was not found.");
 
             var reviews = await uow.ReviewRepository.GetByMovieIdAsync(movieId);
 

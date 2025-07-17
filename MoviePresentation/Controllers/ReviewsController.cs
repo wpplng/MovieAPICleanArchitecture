@@ -22,9 +22,6 @@ namespace MoviePresentation.Controllers
         {
             var reviews = await serviceManager.Reviews.GetReviewsForMovieAsync(movieId);
 
-            if (!reviews.Any())
-                return NotFound($"No reviews or movie with ID {movieId} not found.");
-
             return Ok(reviews);
         }
     }
