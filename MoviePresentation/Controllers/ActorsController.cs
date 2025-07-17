@@ -19,10 +19,7 @@ namespace MoviePresentation.Controllers
         [HttpPost]
         public async Task<ActionResult> AddActorToMovie(int movieId, int actorId)
         {
-            var success = await serviceManager.Actors.AddActorToMovieAsync(movieId, actorId);
-
-            if (!success)
-                return BadRequest("Either movie or actor not found, or actor already exists in movie.");
+            await serviceManager.Actors.AddActorToMovieAsync(movieId, actorId);
 
             return NoContent();
         }
