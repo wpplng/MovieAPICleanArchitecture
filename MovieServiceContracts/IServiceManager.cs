@@ -10,6 +10,6 @@ namespace MovieServiceContracts
     {
         IMovieService Movies { get; }
         IActorService Actors { get; }
-        //IReviewService Reviews { get; }
+        IReviewService Reviews { get; }
     }
 }
