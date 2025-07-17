@@ -7,7 +7,7 @@
         public int Year { get; set; }
         public string Genre { get; set; } = string.Empty;
         public int Duration { get; set; }
-        public string? Synopsis { get; set; } 
+        public string? Synopsis { get; set; }
         public string? Language { get; set; }
         public decimal? Budget { get; set; }
         public ICollection<ReviewDto> Reviews { get; set; } = new List<ReviewDto>();

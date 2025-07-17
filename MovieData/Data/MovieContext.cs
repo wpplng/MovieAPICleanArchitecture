@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MovieData.Configurations;
 using MovieCore.Models.Entities;
+using MovieData.Configurations;
 
 namespace MovieData.Data
 {

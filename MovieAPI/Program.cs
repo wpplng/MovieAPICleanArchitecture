@@ -26,6 +26,7 @@ namespace MovieAPI
             builder.Services.AddScoped<IServiceManager, ServiceManager>();
             builder.Services.AddScoped<IMovieService, MovieService>();
             builder.Services.AddScoped<IActorService, ActorService>();
+            builder.Services.AddScoped<IReviewService, ReviewService>();
 
             builder.Services.AddHostedService<DataSeedService>();
 

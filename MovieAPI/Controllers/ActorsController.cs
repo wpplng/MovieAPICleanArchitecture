@@ -1,9 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using MovieCore.DomainContracts;
-using MovieData.Data;
 using MovieServiceContracts;
-using MovieServices;
 
 namespace MovieAPI.Controllers
 {
