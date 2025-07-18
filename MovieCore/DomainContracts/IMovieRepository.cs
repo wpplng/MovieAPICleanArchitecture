@@ -9,6 +9,7 @@ namespace MovieCore.DomainContracts
         Task<Movie?> GetAsync(int id);
         Task<Movie?> GetWithDetailsAsync(int id);
         Task<bool> AnyAsync(int id);
+        Task<bool> ExistsWithTitleAsync(string title, int? excludeId = null);
         void Add(Movie movie);
         void Update(Movie movie);
         void Remove(Movie movie);

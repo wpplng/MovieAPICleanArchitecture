@@ -52,6 +52,13 @@ namespace MovieData.Repositories
             return await context.Movies.AnyAsync(m => m.Id == id);
         }
 
+        public async Task<bool> ExistsWithTitleAsync(string title, int? excludeId = null)
+        {
+            return await context.Movies.AnyAsync(m =>
+                m.Title.ToLower() == title.ToLower() &&
+                (!excludeId.HasValue || m.Id != excludeId));
+        }
+
         public async Task<Movie?> GetWithDetailsAsync(int id)
         {
             return await context.Movies

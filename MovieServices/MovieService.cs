@@ -64,6 +64,10 @@ namespace MovieServices
             if (genre == null)
                 throw new KeyNotFoundException($"Genre with ID {dto.GenreId} was not found.");
 
+            var titleExists = await uow.MovieRepository.ExistsWithTitleAsync(dto.Title);
+            if (titleExists)
+                throw new InvalidOperationException($"A movie with the title \"{dto.Title}\" already exists.");
+
             var movie = new Movie
             {
                 Title = dto.Title,
@@ -86,6 +90,10 @@ namespace MovieServices
             var genre = await uow.GenreRepository.GetAsync(dto.GenreId);
             if (genre == null)
                 throw new KeyNotFoundException($"Genre with ID {dto.GenreId} was not found.");
+
+            var titleExists = await uow.MovieRepository.ExistsWithTitleAsync(dto.Title, excludeId: id);
+            if (titleExists)
+                throw new InvalidOperationException($"A movie with the title \"{dto.Title}\" already exists.");
 
             movie.Title = dto.Title;
             movie.Year = dto.Year;
@@ -113,6 +121,9 @@ namespace MovieServices
         {
             var movie = await uow.MovieRepository.GetWithDetailsAsync(id);
             if (movie == null) throw new KeyNotFoundException($"Movie with ID {id} was not found.");
+
+            if (dto.Budget < 0)
+                throw new ArgumentException("Budget cannot be negative.");
 
             if (movie.MovieDetails == null)
             {
