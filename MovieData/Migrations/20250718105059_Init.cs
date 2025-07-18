@@ -2,6 +2,8 @@
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace MovieData.Migrations
 {
     /// <inheritdoc />
@@ -25,6 +27,19 @@ namespace MovieData.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Genres",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Genres", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Movie",
                 columns: table => new
                 {
@@ -32,12 +47,18 @@ namespace MovieData.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Title = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Year = table.Column<int>(type: "int", nullable: false),
-                    Genre = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Duration = table.Column<int>(type: "int", maxLength: 500, nullable: false)
+                    Duration = table.Column<int>(type: "int", maxLength: 500, nullable: false),
+                    GenreId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Movie", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Movie_Genres_GenreId",
+                        column: x => x.GenreId,
+                        principalTable: "Genres",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -108,10 +129,25 @@ namespace MovieData.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.InsertData(
+                table: "Genres",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { 1, "Action" },
+                    { 2, "Comedy" },
+                    { 3, "Documentary" }
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_ActorMovie_MoviesId",
                 table: "ActorMovie",
                 column: "MoviesId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Movie_GenreId",
+                table: "Movie",
+                column: "GenreId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_MovieDetails_MovieId",
@@ -142,6 +178,9 @@ namespace MovieData.Migrations
 
             migrationBuilder.DropTable(
                 name: "Movie");
+
+            migrationBuilder.DropTable(
+                name: "Genres");
         }
     }
 }

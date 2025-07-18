@@ -1,5 +1,4 @@
-﻿
-using Bogus;
+﻿using Bogus;
 using Microsoft.EntityFrameworkCore;
 using MovieCore.Models.Entities;
 using MovieData.Data;
@@ -29,7 +28,7 @@ namespace MovieAPI.Services
 
             try
             {
-                IEnumerable<Movie> movies = GenerateMovies(10);
+                IEnumerable<Movie> movies = GenerateMovies(10, context);
                 await context.Movies.AddRangeAsync(movies, cancellationToken);
                 await context.SaveChangesAsync(cancellationToken);
                 logger.LogInformation("Database seeded");
@@ -42,8 +41,9 @@ namespace MovieAPI.Services
 
         }
 
-        private IEnumerable<Movie> GenerateMovies(int numberOfMovies)
+        private IEnumerable<Movie> GenerateMovies(int numberOfMovies, MovieContext context)
         {
+            var genres = context.Genres.ToList();
             var actorFaker = new Faker<Actor>("en").Rules((f, a) =>
             {
                 a.Name = f.Name.FullName();
@@ -70,7 +70,7 @@ namespace MovieAPI.Services
             {
                 m.Title = f.Lorem.Sentence(3, 5);
                 m.Year = f.Date.Past(20).Year;
-                m.Genre = f.PickRandom(new[] { "Action", "Comedy", "Drama", "Horror", "Sci-Fi" });
+                m.GenreId = f.PickRandom(genres).Id;
                 m.Duration = f.Random.Int(60, 180);
                 m.MovieDetails = movieDetailsFaker.Generate();
                 m.Reviews = reviewFaker.Generate(f.Random.Int(1, 3));

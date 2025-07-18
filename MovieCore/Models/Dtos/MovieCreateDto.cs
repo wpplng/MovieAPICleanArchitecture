@@ -10,8 +10,7 @@ namespace MovieCore.Models.Dtos
         [Range(1888, 2100, ErrorMessage = "Must be between the years of 1888 to 2100")]
         public int Year { get; set; }
         [Required(ErrorMessage = "Genre is required")]
-        [StringLength(50, ErrorMessage = "Genre cannot be longer than 50 characters")]
-        public string Genre { get; set; } = string.Empty;
+        public int GenreId { get; set; }
         [Range(1, 500, ErrorMessage = "Must be between 1 and 500 minutes")]
         public int Duration { get; set; }
     }

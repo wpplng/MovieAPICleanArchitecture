@@ -8,6 +8,7 @@ namespace MovieData.Repositories
         public IMovieRepository MovieRepository { get; }
         public IReviewRepository ReviewRepository { get; }
         public IActorRepository ActorRepository { get; }
+        public IGenreRepository GenreRepository { get; }
 
         private readonly MovieContext context;
 
@@ -16,6 +17,7 @@ namespace MovieData.Repositories
             MovieRepository = new MovieRepository(context);
             ReviewRepository = new ReviewRepository(context);
             ActorRepository = new ActorRepository(context);
+            GenreRepository = new GenreRepository(context);
             this.context = context;
         }
 

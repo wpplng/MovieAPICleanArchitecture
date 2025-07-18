@@ -9,6 +9,7 @@ namespace MovieData.Data
         public DbSet<Movie> Movies { get; set; } = default!;
         public DbSet<Actor> Actors { get; set; } = default!;
         public DbSet<Review> Reviews { get; set; } = default!;
+        public DbSet<Genre> Genres { get; set; } = default!;
         public MovieContext(DbContextOptions<MovieContext> options)
             : base(options)
         {
@@ -24,6 +25,11 @@ namespace MovieData.Data
                 .HasPrecision(18, 2);
             modelBuilder.Entity<Actor>()
                 .ToTable("Actor");
+            modelBuilder.Entity<Genre>().HasData(
+                new Genre { Id = 1, Name = "Action" },
+                new Genre { Id = 2, Name = "Comedy" },
+                new Genre { Id = 3, Name = "Documentary" }
+            );
         }
     }
 }

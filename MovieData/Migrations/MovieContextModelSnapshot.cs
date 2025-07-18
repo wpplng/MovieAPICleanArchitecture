@@ -36,7 +36,7 @@ namespace MovieData.Migrations
                     b.ToTable("ActorMovie");
                 });
 
-            modelBuilder.Entity("MovieAPI.Models.Entities.Actor", b =>
+            modelBuilder.Entity("MovieCore.Models.Entities.Actor", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -56,7 +56,41 @@ namespace MovieData.Migrations
                     b.ToTable("Actor", (string)null);
                 });
 
-            modelBuilder.Entity("MovieAPI.Models.Entities.Movie", b =>
+            modelBuilder.Entity("MovieCore.Models.Entities.Genre", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Genres");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Action"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Comedy"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Documentary"
+                        });
+                });
+
+            modelBuilder.Entity("MovieCore.Models.Entities.Movie", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -68,10 +102,8 @@ namespace MovieData.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("int");
 
-                    b.Property<string>("Genre")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                    b.Property<int>("GenreId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -83,10 +115,12 @@ namespace MovieData.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("GenreId");
+
                     b.ToTable("Movie", (string)null);
                 });
 
-            modelBuilder.Entity("MovieAPI.Models.Entities.MovieDetails", b =>
+            modelBuilder.Entity("MovieCore.Models.Entities.MovieDetails", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -117,7 +151,7 @@ namespace MovieData.Migrations
                     b.ToTable("MovieDetails", (string)null);
                 });
 
-            modelBuilder.Entity("MovieAPI.Models.Entities.Review", b =>
+            modelBuilder.Entity("MovieCore.Models.Entities.Review", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -151,33 +185,44 @@ namespace MovieData.Migrations
 
             modelBuilder.Entity("ActorMovie", b =>
                 {
-                    b.HasOne("MovieAPI.Models.Entities.Actor", null)
+                    b.HasOne("MovieCore.Models.Entities.Actor", null)
                         .WithMany()
                         .HasForeignKey("ActorsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MovieAPI.Models.Entities.Movie", null)
+                    b.HasOne("MovieCore.Models.Entities.Movie", null)
                         .WithMany()
                         .HasForeignKey("MoviesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("MovieAPI.Models.Entities.MovieDetails", b =>
+            modelBuilder.Entity("MovieCore.Models.Entities.Movie", b =>
                 {
-                    b.HasOne("MovieAPI.Models.Entities.Movie", "Movie")
+                    b.HasOne("MovieCore.Models.Entities.Genre", "Genre")
+                        .WithMany("Movies")
+                        .HasForeignKey("GenreId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Genre");
+                });
+
+            modelBuilder.Entity("MovieCore.Models.Entities.MovieDetails", b =>
+                {
+                    b.HasOne("MovieCore.Models.Entities.Movie", "Movie")
                         .WithOne("MovieDetails")
-                        .HasForeignKey("MovieAPI.Models.Entities.MovieDetails", "MovieId")
+                        .HasForeignKey("MovieCore.Models.Entities.MovieDetails", "MovieId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Movie");
                 });
 
-            modelBuilder.Entity("MovieAPI.Models.Entities.Review", b =>
+            modelBuilder.Entity("MovieCore.Models.Entities.Review", b =>
                 {
-                    b.HasOne("MovieAPI.Models.Entities.Movie", "Movie")
+                    b.HasOne("MovieCore.Models.Entities.Movie", "Movie")
                         .WithMany("Reviews")
                         .HasForeignKey("MovieId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -186,7 +231,12 @@ namespace MovieData.Migrations
                     b.Navigation("Movie");
                 });
 
-            modelBuilder.Entity("MovieAPI.Models.Entities.Movie", b =>
+            modelBuilder.Entity("MovieCore.Models.Entities.Genre", b =>
+                {
+                    b.Navigation("Movies");
+                });
+
+            modelBuilder.Entity("MovieCore.Models.Entities.Movie", b =>
                 {
                     b.Navigation("MovieDetails");
 

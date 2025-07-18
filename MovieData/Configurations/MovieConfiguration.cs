@@ -11,9 +11,12 @@ namespace MovieData.Configurations
             builder.ToTable("Movie");
             builder.HasKey(m => m.Id);
             builder.Property(m => m.Title).IsRequired().HasMaxLength(100);
-            builder.Property(m => m.Genre).IsRequired().HasMaxLength(50);
+            //builder.Property(m => m.Genre).IsRequired().HasMaxLength(50);
             builder.Property(m => m.Year).IsRequired();
             builder.Property(m => m.Duration).IsRequired().HasMaxLength(500);
+            builder.HasOne(m => m.Genre)
+                .WithMany(g => g.Movies)
+                .HasForeignKey(m => m.GenreId);
             builder.HasOne(m => m.MovieDetails)
                 .WithOne(md => md.Movie)
                 .HasForeignKey<MovieDetails>(md => md.MovieId);

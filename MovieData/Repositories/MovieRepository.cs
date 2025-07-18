@@ -21,10 +21,12 @@ namespace MovieData.Repositories
 
         public async Task<(IEnumerable<Movie> Movies, int TotalItems)> GetFilteredAsync(string? genre, int? year, int pageNumber, int pageSize)
         {
-            var query = context.Movies.AsQueryable();
+            var query = context.Movies
+                .Include(m => m.Genre)
+                .AsQueryable();
 
             if (!string.IsNullOrEmpty(genre))
-                query = query.Where(m => m.Genre.ToLower() == genre.ToLower());
+                query = query.Where(m => m.Genre.Name.ToLower() == genre.ToLower());
 
             if (year.HasValue)
                 query = query.Where(m => m.Year == year);
@@ -41,7 +43,9 @@ namespace MovieData.Repositories
 
         public async Task<Movie?> GetAsync(int id)
         {
-            return await context.Movies.FirstOrDefaultAsync(m => m.Id == id);
+            return await context.Movies
+                .Include(m => m.Genre)
+                .FirstOrDefaultAsync(m => m.Id == id);
         }
         public async Task<bool> AnyAsync(int id)
         {
@@ -51,6 +55,7 @@ namespace MovieData.Repositories
         public async Task<Movie?> GetWithDetailsAsync(int id)
         {
             return await context.Movies
+                .Include(m => m.Genre)
                 .Include(m => m.MovieDetails)
                 .Include(m => m.Reviews)
                 .Include(m => m.Actors)

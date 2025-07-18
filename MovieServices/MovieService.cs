@@ -22,7 +22,7 @@ namespace MovieServices
 
             return new PagedResult<MovieDto>
             {
-                Items = movies.Select(m => new MovieDto(m.Id, m.Title, m.Year, m.Genre, m.Duration)),
+                Items = movies.Select(m => new MovieDto(m.Id, m.Title, m.Year, m.Genre.Name, m.Duration)),
                 TotalItems = totalItems,
                 TotalPages = totalPages,
                 PageNumber = pageNumber,
@@ -35,7 +35,7 @@ namespace MovieServices
             var movie = await uow.MovieRepository.GetAsync(id);
             if (movie == null) throw new KeyNotFoundException($"Movie with ID {id} was not found.");
 
-            return new MovieDto(movie.Id, movie.Title, movie.Year, movie.Genre, movie.Duration);
+            return new MovieDto(movie.Id, movie.Title, movie.Year, movie.Genre.Name, movie.Duration);
         }
 
         public async Task<MovieDetailDto?> GetDetailsAsync(int id)
@@ -48,7 +48,7 @@ namespace MovieServices
                 Id = movie.Id,
                 Title = movie.Title,
                 Year = movie.Year,
-                Genre = movie.Genre,
+                Genre = movie.Genre.Name,
                 Duration = movie.Duration,
                 Synopsis = movie.MovieDetails?.Synopsis,
                 Language = movie.MovieDetails?.Language,
@@ -60,18 +60,22 @@ namespace MovieServices
 
         public async Task<MovieDto> CreateAsync(MovieCreateDto dto)
         {
+            var genre = await uow.GenreRepository.GetAsync(dto.GenreId);
+            if (genre == null)
+                throw new KeyNotFoundException($"Genre with ID {dto.GenreId} was not found.");
+
             var movie = new Movie
             {
                 Title = dto.Title,
                 Year = dto.Year,
-                Genre = dto.Genre,
+                GenreId = dto.GenreId,
                 Duration = dto.Duration
             };
 
             uow.MovieRepository.Add(movie);
             await uow.CompleteAsync();
 
-            return new MovieDto(movie.Id, movie.Title, movie.Year, movie.Genre, movie.Duration);
+            return new MovieDto(movie.Id, movie.Title, movie.Year, movie.Genre.Name, movie.Duration);
         }
 
         public async Task<bool> UpdateAsync(int id, MovieUpdateDto dto)
@@ -79,9 +83,13 @@ namespace MovieServices
             var movie = await uow.MovieRepository.GetAsync(id);
             if (movie == null) throw new KeyNotFoundException($"Movie with ID {id} was not found.");
 
+            var genre = await uow.GenreRepository.GetAsync(dto.GenreId);
+            if (genre == null)
+                throw new KeyNotFoundException($"Genre with ID {dto.GenreId} was not found.");
+
             movie.Title = dto.Title;
             movie.Year = dto.Year;
-            movie.Genre = dto.Genre;
+            movie.GenreId = dto.GenreId;
             movie.Duration = dto.Duration;
 
             uow.MovieRepository.Update(movie);
